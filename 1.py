@@ -42,7 +42,7 @@ class HtmlReader():
         #     self.extract_main_title()
         #     self.extract_main_paragraph()
     
-        # print('\n'.join(self.res))
+        print('\n'.join(self.res))
 
 
     @staticmethod
@@ -94,12 +94,25 @@ class HtmlReader():
                 self.res.append('> ' + el.text)
                 self.res.append('')
             
-            elif el.name == 'td':
-                print(f'{el.text=}')            
+            elif el.name == 'tr':
+                self.constract_table(el)
+                # print(f'{el.text=}')            
             
             else:
                 pass
                 # print(el.name)
+
+    def constract_table(self, el) -> str:
+        table_text = []
+        table_row = []
+        for td in el:
+            if td.name == 'td' and td.text: 
+                table_row.append(td.text)
+        else:
+            table_row.append('\n')
+
+        table_text.append(' | '.join(table_row))
+        self.res.append(''.join(table_text))
 
 if __name__ == '__main__':
     if len(sys.argv) == 2:content_name = sys.argv[1]
