@@ -25,6 +25,9 @@ class HtmlReader():
         soup = BeautifulSoup(self.html, 'html.parser')
         self.main_content = soup.select_one('.main-content')
         # print(main_content)
+        
+
+
         for key, val in DIV_AND_FUNC.items():
             self.sub_main_content_div = self.main_content.select_one(key)
             if self.sub_main_content_div:
@@ -102,18 +105,27 @@ class HtmlReader():
                 pass
                 # print(el.name)
 
-    def constract_table(self, el) -> str:
+    def constract_table(self, el) -> str:#TODO: need a beater print
         table_text = []
-        table_row = []
         for td in el:
             if td.name == 'td' and td.text: 
-                table_row.append(td.text)
+                table_text.append(td.text)
         else:
-            table_row.append('\n')
+            table_text.append('\n')
 
-        table_text.append(' | '.join(table_row))
-        self.res.append(''.join(table_text))
+        self.res.append(' | '.join(table_text))
 
 if __name__ == '__main__':
-    if len(sys.argv) == 2:content_name = sys.argv[1]
-    HtmlReader(content_name)
+    my_table = ['1', 'dd12', '123']
+    new_table = []
+    len_longest_string = len(max(my_table))
+    for num in my_table:
+        len_empty_space = len_longest_string - len(num) 
+        new_table.append(num + (' ' * len_empty_space))
+
+
+
+    print('|'.join(new_table))
+
+    # if len(sys.argv) == 2:content_name = sys.argv[1]
+    # HtmlReader(content_name)
