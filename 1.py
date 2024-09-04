@@ -1,5 +1,7 @@
 import requests 
 from bs4 import BeautifulSoup
+from dataclasses import dataclass
+from typing import List
 
 '''
 url = 'http://dnd5e.wikidot.com/background:inheritor'
@@ -15,6 +17,19 @@ with open('11.html', 'r') as f:
 
 def make_underline(text: str, line_type:str = '-') -> str:
     return line_type * len(text)
+
+
+@dataclass 
+class Element:
+    name: str
+    kind: str
+    lvl: int = 0
+    content: List[Element] = []
+
+    def __str__(self):
+        res = '#' * (self.lvl) + ' ' + self.name
+
+
 
 res = []
 
