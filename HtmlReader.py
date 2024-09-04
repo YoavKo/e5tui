@@ -1,6 +1,9 @@
 import requests 
 from bs4 import BeautifulSoup
+from bs4.element import Tag 
 import sys
+import pandas as pd
+
 
 ''' classes dont have tb
     main page lineage have no table
@@ -16,36 +19,16 @@ import sys
 class HtmlReader():
 
     def __init__(self, content_name):
-        DIV_AND_FUNC = {'#toc' : [self.extract_main_title, self.extract_sub_title, self.extract_main_paragraph],
-                        '#page-content' : [self.extract_main_title, self.extract_main_paragraph]
-                        }
         # self.html = HtmlReader.open_file()   
         self.html = HtmlReader.read_from_site_to_text(content_name)
         self.res = []
         soup = BeautifulSoup(self.html, 'html.parser')
         self.main_content = soup.select_one('.main-content')
-        # print(main_content)
-        
-
-
-        for key, val in DIV_AND_FUNC.items():
-            self.sub_main_content_div = self.main_content.select_one(key)
-            if self.sub_main_content_div:
-                for funk in val:
-                    funk()
-
-        # self.toc = self.main_content.select_one('#toc')
-        # if self.toc:
-        #     self.extract_main_title()
-        #     self.extract_sub_title()
-        #     self.extract_main_paragraph()
-       
-        # else:
-        #     self.toc = self.main_content.select_one('#page-content')
-        #     self.extract_main_title()
-        #     self.extract_main_paragraph()
-    
-        print('\n'.join(self.res))
+        self.sub_main_content_tag = self.select_main_content_tag()
+        self.extract_main_title() 
+        self.extract_sub_title()
+        self.extract_main_paragraph()
+        # print('\n'.join(self.res))
 
 
     @staticmethod
@@ -70,6 +53,10 @@ class HtmlReader():
     def make_underline(text: str, line_type:str = '-') -> str:
         return line_type * len(text)
 
+    def select_main_content_tag(self) -> Tag:
+        if self.main_content.select_one('#toc'): string = '#toc'
+        elif self.main_content.select_one('#page-content'): string = '#page-content'
+        return self.main_content.select_one(string)
 
     def extract_main_title(self) -> None:
         page_title = self.main_content.select_one('.page-title')
@@ -78,22 +65,24 @@ class HtmlReader():
         self.res.append('')
 
     def extract_sub_title(self) -> None:
-        title = self.sub_main_content_div.select_one('.title').text
-        self.res.append('## ' + title)
-        self.res.append(HtmlReader.make_underline(self.res[-1]))
-        toc_list = self.sub_main_content_div.select_one('#toc-list')
-        for subject in toc_list.findChildren('a'):
-            self.res.append('* ' + subject.text)
+        title = self.sub_main_content_tag.select_one('.title')
+        if title: 
+            title = title.text
+            self.res.append('## ' + title)
+            self.res.append(HtmlReader.make_underline(self.res[-1]))
+            toc_list = self.sub_main_content_tag.select_one('#toc-list')
+            for subject in toc_list.findChildren('a'):
+                self.res.append('* ' + subject.text)
 
-        self.res.append('')
+            self.res.append('')
 
     def extract_main_paragraph(self) -> None:
-        for el in self.sub_main_content_div.next_elements:
+        for el in self.sub_main_content_tag.next_elements:
             if el.name == 'p':
                 self.res.append(el.text)
                 self.res.append('')
 
-            elif el.name == 'h1':
+            elif el.name != None and 'h' in el.name:
                 self.res.append('> ' + el.text)
                 self.res.append('')
             
@@ -101,6 +90,13 @@ class HtmlReader():
                 self.constract_table(el)
                 # print(f'{el.text=}')            
             
+            elif el.name == 'div':
+                print(f'{el.text} \n\n')
+                break
+
+            elif el.name == None or el.name == 'br' or el.name == 'None':
+                pass
+
             else:
                 pass
                 # print(el.name)
@@ -113,19 +109,20 @@ class HtmlReader():
         else:
             table_text.append('\n')
 
-        self.res.append(' | '.join(table_text))
+        self.res.append(''.join(table_text))
 
 if __name__ == '__main__':
-    my_table = ['1', 'dd12', '123']
-    new_table = []
-    len_longest_string = len(max(my_table))
-    for num in my_table:
-        len_empty_space = len_longest_string - len(num) 
-        new_table.append(num + (' ' * len_empty_space))
+    # my_table = ['1', 'dd12', '123']
+    # new_table = []
+    # len_longest_string = len(max(my_table))
+    # for num in my_table:
+    #     len_empty_space = len_longest_string - len(num) 
+    #     new_table.append(num + (' ' * len_empty_space))
 
 
 
-    print('|'.join(new_table))
+    # print('|'.join(new_table))
 
-    # if len(sys.argv) == 2:content_name = sys.argv[1]
-    # HtmlReader(content_name)
+    if len(sys.argv) == 2:content_name = sys.argv[1]
+    else:content_name = ''
+    HtmlReader(content_name)
