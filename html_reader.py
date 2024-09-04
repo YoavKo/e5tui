@@ -54,9 +54,11 @@ class HtmlReader():
         return line_type * len(text)
 
     def select_main_content_tag(self) -> Tag:
-        if self.main_content.select_one('#toc'): string = '#toc'
-        elif self.main_content.select_one('#page-content'): string = '#page-content'
-        return self.main_content.select_one(string)
+        if main_content := self.main_content.select_one('#toc'):
+            return main_content
+
+        elif main_content := self.main_content.select_one('#page-content'):
+            return main_content
 
     def extract_main_title(self) -> None:
         page_title = self.main_content.select_one('.page-title')
