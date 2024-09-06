@@ -2,8 +2,13 @@ import requests
 import sys
 from bs4 import BeautifulSoup
 import time
+import os 
+from pathlib import Path
 
 def main():
+    if not Path('htmls').is_dir(): 
+        os.mkdir('htmls')
+        
     for i in range(1,15):
         html = read_from_site_to_text(f'system:list-all-pages/p/{i}')
         soup = BeautifulSoup(html, 'html.parser')
