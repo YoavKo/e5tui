@@ -33,13 +33,19 @@ def spell_to_dict(page_content):
     peregragh = page_content.select('p')
     for i, p in enumerate(peregragh):
         if spell_keys[i] == 'spell_parameters':
-            # print(p.select('strong'))
+            split_text = p.text.split('\n')
+            for item in split_text:
+                item = item.split(':')
+                spell_dict.update({item[0] : item[1]})
+
             continue
         
         spell_dict.update({spell_keys[i] : p})
 
+
     # print(page_content.formatter_for_name)
-    # print(spell_dict)
+    for key, val in spell_dict.items():
+        print(f'{key} : {val}')
     # print(dir(page_content))
     # print(help(page_content.formatter_for_name))
 
