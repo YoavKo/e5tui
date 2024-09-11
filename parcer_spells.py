@@ -5,12 +5,14 @@ import pandas as pd
 import os
 import pickle
 from pathlib import Path
-
+import json
 
 def main():
     pickle_dir = 'jar_of_spells'
-    if not Path(pickle_dir).is_dir(): 
-        os.mkdir(pickle_dir)
+    make_dir_if_not_exist(pickle_dir)        
+    json_dir = 'jsons_spells'
+    make_dir_if_not_exist(json_dir)
+
 
     files = os.walk('htmls')
     for root, dirs, file_names in files:
@@ -18,10 +20,18 @@ def main():
             if file_name[:6] == 'spell:':
                 try:
                     spell_dict = reconstract_one_spell(file_name)
-                    pickle.dump(spell_dict, save_text_to_file('', f"{pickle_dir}/{spell_dict['name']}.pickle"))
-
+                    # pickle.dump(spell_dict, save_text_to_file('', f"{pickle_dir}/{spell_dict['name']}.pickle"))
+                    dump_data_into_json(spell_dict,  f'{json_dir}/{spell_dict["name"]}.json')
                 except Exception as e:
                     save_text_to_file(file_name, 'errored_spells.text')
+
+def dump_data_into_json(data, file_path):
+    with open(file_path, 'w') as f:
+        json.dump(data, f)
+
+def make_dir_if_not_exist(dir_name):
+    if not Path(dir_name).is_dir(): 
+        os.mkdir(dir_name)
 
 def reconstract_one_spell(file_name):
     html_text = open_file(f'htmls/{file_name}')
